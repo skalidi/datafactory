@@ -1,0 +1,54 @@
+{
+	"name": "source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "productdtails.csv",
+				"folderPath": "inputs",
+				"container": "devwork"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "prodid",
+				"type": "String"
+			},
+			{
+				"name": "prodname",
+				"type": "String"
+			},
+			{
+				"name": "prodprice",
+				"type": "String"
+			},
+			{
+				"name": "prodcatid",
+				"type": "String"
+			},
+			{
+				"name": "cratedate",
+				"type": "String"
+			},
+			{
+				"name": "modifieddate",
+				"type": "String"
+			},
+			{
+				"name": "prodcatname",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

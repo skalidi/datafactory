@@ -1,0 +1,171 @@
+{
+	"name": "df_scd2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable2",
+						"type": "DatasetReference"
+					},
+					"name": "srcproduct"
+				},
+				{
+					"dataset": {
+						"referenceName": "tgt_product",
+						"type": "DatasetReference"
+					},
+					"name": "tgtlkp"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "tgt_product",
+						"type": "DatasetReference"
+					},
+					"name": "tgtproduct"
+				},
+				{
+					"dataset": {
+						"referenceName": "tgt_product",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          prodid as integer,",
+				"          prodname as string,",
+				"          prodprice as integer,",
+				"          prodcatid as integer,",
+				"          cratedate as timestamp,",
+				"          modifieddate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> srcproduct",
+				"source(output(",
+				"          pkey as integer,",
+				"          prodid as integer,",
+				"          prodname as string,",
+				"          prodprice as integer,",
+				"          prodcatid as integer,",
+				"          isactive as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> tgtlkp",
+				"srcproduct derive(isactive = 1) ~> derivedColumn1",
+				"tgtlkp select(mapColumn(",
+				"          lkp_pkey = pkey,",
+				"          lkp_prodid = prodid,",
+				"          lkp_prodname = prodname,",
+				"          lkp_prodprice = prodprice,",
+				"          lkp_prodcatid = prodcatid,",
+				"          lkp_isactive = isactive",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"srcproduct, select1 lookup(prodid == lkp_prodid,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1 filter(!isNull(lkp_prodid)) ~> filter1",
+				"filter1 select(mapColumn(",
+				"          lkp_pkey,",
+				"          lkp_prodid,",
+				"          lkp_prodname,",
+				"          lkp_prodprice,",
+				"          lkp_prodcatid,",
+				"          lkp_isactive",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 derive(lkp_isactive = 0) ~> derivedColumn2",
+				"derivedColumn2 alterRow(updateIf(1==1)) ~> alterRow1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          pkey as integer,",
+				"          prodid as integer,",
+				"          prodname as string,",
+				"          prodprice as integer,",
+				"          prodcatid as integer,",
+				"          isactive as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 2,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          prodid,",
+				"          prodname,",
+				"          prodprice,",
+				"          prodcatid,",
+				"          isactive",
+				"     )) ~> tgtproduct",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          pkey as integer,",
+				"          prodid as integer,",
+				"          prodname as string,",
+				"          prodprice as integer,",
+				"          prodcatid as integer,",
+				"          isactive as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['pkey'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          pkey = lkp_pkey,",
+				"          prodid = lkp_prodid,",
+				"          prodname = lkp_prodname,",
+				"          prodprice = lkp_prodprice,",
+				"          prodcatid = lkp_prodcatid,",
+				"          isactive = lkp_isactive",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

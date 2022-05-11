@@ -1,0 +1,9 @@
+{
+	"name": "custdfp",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "0ad77252-76eb-4ce5-97dc-541d5563d8ec",
+		"tenantId": "3667906a-c217-4387-a6b2-7a356862af9a"
+	}
+}

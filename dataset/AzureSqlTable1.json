@@ -1,0 +1,47 @@
+{
+	"name": "AzureSqlTable1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedsercust",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "prodid",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "prodname",
+				"type": "varchar"
+			},
+			{
+				"name": "prodprice",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "prodcatid",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "cratedate",
+				"type": "datetime2",
+				"scale": 7
+			},
+			{
+				"name": "modifieddate",
+				"type": "datetime2",
+				"scale": 7
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "src_product"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,84 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"name": "srcproduct"
+				},
+				{
+					"dataset": {
+						"referenceName": "src_prodcat",
+						"type": "DatasetReference"
+					},
+					"name": "srcprodcat"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedText1",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "lookup1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          prodid as integer,",
+				"          prodname as string,",
+				"          prodprice as integer,",
+				"          prodcatid as integer,",
+				"          cratedate as timestamp,",
+				"          modifieddate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> srcproduct",
+				"source(output(",
+				"          prodcatid as integer,",
+				"          prodcatname as string,",
+				"          cratedate as timestamp,",
+				"          modifieddate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> srcprodcat",
+				"srcproduct, srcprodcat lookup(srcproduct@prodcatid == srcprodcat@prodcatid,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['productdtails.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          prodid,",
+				"          prodname,",
+				"          prodprice,",
+				"          prodcatid = srcproduct@prodcatid,",
+				"          cratedate = srcproduct@cratedate,",
+				"          modifieddate = srcproduct@modifieddate,",
+				"          prodcatid = srcprodcat@prodcatid,",
+				"          prodcatname,",
+				"          cratedate = srcprodcat@cratedate,",
+				"          modifieddate = srcprodcat@modifieddate",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}
