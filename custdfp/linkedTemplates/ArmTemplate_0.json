@@ -723,7 +723,14 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          custid = cust_no,",
+						"          cname = cust_name,",
+						"          city = City,",
+						"          state = State,",
+						"          country = Country",
+						"     )) ~> sink1"
 					]
 				}
 			},
