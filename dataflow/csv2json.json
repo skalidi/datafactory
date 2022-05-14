@@ -1,0 +1,61 @@
+{
+	"name": "csv2json",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedText2",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Json1",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          cust_no as string,",
+				"          cust_name as string,",
+				"          cust_city as string,",
+				"          cust_state as string,",
+				"          cust_country as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source1 derive(Address = @(City=cust_city,",
+				"          State=cust_state,",
+				"          Country=cust_country)) ~> derivedColumn1",
+				"derivedColumn1 aggregate(groupBy(cust_no,",
+				"          cust_name),",
+				"     Address = collect(Address)) ~> aggregate1",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Geeks as (Geekname as string, subject as string, Articles as integer)[]",
+				"     ),",
+				"     partitionFileNames:['Customer.json'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}

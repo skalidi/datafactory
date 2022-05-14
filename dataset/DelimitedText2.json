@@ -1,0 +1,44 @@
+{
+	"name": "DelimitedText2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "customerlinkedservice",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "cust_deetails.csv",
+				"container": "devwork"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "cust_no",
+				"type": "String"
+			},
+			{
+				"name": "cust_name",
+				"type": "String"
+			},
+			{
+				"name": "cust_city",
+				"type": "String"
+			},
+			{
+				"name": "cust_state",
+				"type": "String"
+			},
+			{
+				"name": "cust_country",
+				"type": "String"
+			}
+		]
+	}
+}

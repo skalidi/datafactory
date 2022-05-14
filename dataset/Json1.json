@@ -1,0 +1,39 @@
+{
+	"name": "Json1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "customerlinkedservice",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "devwork"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"Geeks": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"Geekname": {
+								"type": "string"
+							},
+							"subject": {
+								"type": "string"
+							},
+							"Articles": {
+								"type": "integer"
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
