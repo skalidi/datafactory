@@ -1,0 +1,46 @@
+{
+	"name": "Json2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "customerlinkedservice",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Customer.json",
+				"container": "devwork"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"cust_no": {
+					"type": "string"
+				},
+				"cust_name": {
+					"type": "string"
+				},
+				"Address": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"City": {
+								"type": "string"
+							},
+							"State": {
+								"type": "string"
+							},
+							"Country": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
