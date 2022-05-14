@@ -11,6 +11,9 @@
 		"CustBlobStorage_connectionString": {
 			"value": ""
 		},
+		"customerlinkedservice_connectionString": {
+			"value": ""
+		},
 		"linkedsercust_connectionString": {
 			"value": ""
 		}

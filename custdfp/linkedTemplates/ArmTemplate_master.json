@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'CustBlobStorage'"
 		},
+		"customerlinkedservice_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'customerlinkedservice'"
+		},
 		"linkedsercust_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'linkedsercust'"
@@ -52,12 +56,35 @@
 					"CustBlobStorage_connectionString": {
 						"value": "[parameters('CustBlobStorage_connectionString')]"
 					},
+					"customerlinkedservice_connectionString": {
+						"value": "[parameters('customerlinkedservice_connectionString')]"
+					},
 					"linkedsercust_connectionString": {
 						"value": "[parameters('linkedsercust_connectionString')]"
 					}
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "custdfp_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'custdfp_ArmTemplate_0')]"
+			]
 		}
 	]
 }
