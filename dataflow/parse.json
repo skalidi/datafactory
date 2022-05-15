@@ -56,6 +56,16 @@
 				"     partitionFileNames:['CustomerParse.csv'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          custid,",
+				"          cname,",
+				"          job1 = parse_job.job1,",
+				"          job2 = parse_job.job2,",
+				"          job3 = parse_job.job3,",
+				"          City = parse_address.City,",
+				"          State = parse_address.State,",
+				"          Country = parse_address.Country",
+				"     ),",
 				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
