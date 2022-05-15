@@ -1,0 +1,63 @@
+{
+	"name": "parse",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable4",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedText3",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "parse1"
+				},
+				{
+					"name": "parse2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          custid as short,",
+				"          cname as string,",
+				"          job as string,",
+				"          address as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 parse(parse_job = job ? (job1 as string,",
+				"          job2 as string,",
+				"          job3 as string),",
+				"     format: 'delimited',",
+				"     columnNamesAsHeader: false,",
+				"     columnDelimiter: ',',",
+				"     nullValue: '') ~> parse1",
+				"parse1 parse(parse_address = address ? ",
+				"(City as string,State as string ,Country as string),",
+				"     format: 'json',",
+				"     documentForm: 'singleDocument') ~> parse2",
+				"parse2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['CustomerParse.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}
