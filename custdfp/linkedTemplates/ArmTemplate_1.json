@@ -13,6 +13,169 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable1",
+								"type": "DatasetReference"
+							},
+							"name": "srcproduct"
+						},
+						{
+							"dataset": {
+								"referenceName": "src_prodcat",
+								"type": "DatasetReference"
+							},
+							"name": "srcprodcat"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DelimitedText1",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "lookup1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          prodid as integer,",
+						"          prodname as string,",
+						"          prodprice as integer,",
+						"          prodcatid as integer,",
+						"          cratedate as timestamp,",
+						"          modifieddate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> srcproduct",
+						"source(output(",
+						"          prodcatid as integer,",
+						"          prodcatname as string,",
+						"          cratedate as timestamp,",
+						"          modifieddate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> srcprodcat",
+						"srcproduct, srcprodcat lookup(srcproduct@prodcatid == srcprodcat@prodcatid,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookup1",
+						"lookup1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['productdtails.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          prodid,",
+						"          prodname,",
+						"          prodprice,",
+						"          prodcatid = srcproduct@prodcatid,",
+						"          cratedate = srcproduct@cratedate,",
+						"          modifieddate = srcproduct@modifieddate,",
+						"          prodcatid = srcprodcat@prodcatid,",
+						"          prodcatname,",
+						"          cratedate = srcprodcat@cratedate,",
+						"          modifieddate = srcprodcat@modifieddate",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow2')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "source",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Archivest",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          prodid as string,",
+						"          prodname as string,",
+						"          prodprice as string,",
+						"          prodcatid as string,",
+						"          cratedate as string,",
+						"          modifieddate as string,",
+						"          prodcatname as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     moveFiles: ['/inputs','archiev'],",
+						"     partitionBy('hash', 1)) ~> source1",
+						"source1 select(mapColumn(",
+						"          prodid,",
+						"          prodname,",
+						"          prodprice,",
+						"          prodcatid,",
+						"          cratedate,",
+						"          modifieddate,",
+						"          prodcatname",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string,",
+						"          Column_4 as string,",
+						"          Column_5 as string,",
+						"          Column_6 as string,",
+						"          Column_7 as string",
+						"     ),",
+						"     partitionFileNames:['prodcopy.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/df_scd2')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -187,6 +350,83 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/parse')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable4",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DelimitedText3",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "parse1"
+						},
+						{
+							"name": "parse2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          custid as short,",
+						"          cname as string,",
+						"          job as string,",
+						"          address as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 parse(parse_job = job ? (job1 as string,",
+						"          job2 as string,",
+						"          job3 as string),",
+						"     format: 'delimited',",
+						"     columnNamesAsHeader: false,",
+						"     columnDelimiter: ',',",
+						"     nullValue: '') ~> parse1",
+						"parse1 parse(parse_address = address ? (City as string,",
+						"          State as string,",
+						"          Country as string),",
+						"     format: 'json',",
+						"     documentForm: 'singleDocument') ~> parse2",
+						"parse2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['CustomerParse.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          custid,",
+						"          cname,",
+						"          job1 = parse_job.job1,",
+						"          job2 = parse_job.job2,",
+						"          job3 = parse_job.job3,",
+						"          City = parse_address.City,",
+						"          State = parse_address.State,",
+						"          Country = parse_address.Country",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/csvtojson')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -276,7 +516,9 @@
 				"annotations": [],
 				"lastPublishTime": "2022-05-03T15:01:02Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pipeline2')]",
@@ -322,7 +564,9 @@
 				"annotations": [],
 				"lastPublishTime": "2022-05-03T15:31:11Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow2')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pipeline4')]",
@@ -418,6 +662,53 @@
 				"annotations": []
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipelineparse')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "parse",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "parse",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/parse')]"
+			]
 		}
 	]
 }
