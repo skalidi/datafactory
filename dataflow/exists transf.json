@@ -98,8 +98,10 @@
 				"          State as string,",
 				"          Country as string",
 				"     ),",
+				"     partitionFileNames:['existsoutput.csv'],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}
